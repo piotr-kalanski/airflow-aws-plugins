@@ -1,2 +1,3 @@
 # airflow-aws-plugins
-Airflow plugins with AWS operators
+
+Airflow plugin with AWS operators

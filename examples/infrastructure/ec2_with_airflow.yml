@@ -1,0 +1,51 @@
+Description: "EC2 instance with airflow for testing"
+Parameters:
+  Ec2VPC:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: VPC for EC2 instance
+  Ec2Subnet:
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet for EC2 instance
+  KeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: Key Pair for EC2 instance
+Mappings:
+  RegionMap:
+    eu-central-1:
+      "AMI": "ami-a058674b"
+Resources:
+  AirflowSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "AirflowSecurityGroup"
+      GroupDescription: Allow access to airflow
+      VpcId: !Ref Ec2VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+          Description: "Access to airflow"
+  AirflowInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+          - "RegionMap"
+          - Ref: "AWS::Region"
+          - "AMI"
+      InstanceType: "t2.micro"
+      KeyName: !Ref KeyName
+      NetworkInterfaces:
+        - DeviceIndex: "0"
+          GroupSet:
+            - !Ref "AirflowSecurityGroup"
+          SubnetId: !Ref "Ec2Subnet"
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          mkdir /home/airflow
+          export AIRFLOW_HOME=/home/airflow
+          pip install apache-airflow
+          airflow initdb
+          airflow webserver -p 8080
