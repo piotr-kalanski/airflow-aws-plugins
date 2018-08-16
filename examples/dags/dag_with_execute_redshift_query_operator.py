@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
-from aws_operators.operators.custom_operators import ExecuteRedshiftQueryOperator
+from aws_operators.operators.redshift_operators import ExecuteRedshiftQueryOperator
 from datetime import datetime
 
 

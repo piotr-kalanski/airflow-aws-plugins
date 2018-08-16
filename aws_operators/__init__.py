@@ -1,10 +1,15 @@
 from airflow.plugins_manager import AirflowPlugin
-from aws_operators.operators.custom_operators import ExecuteRedshiftQueryOperator
+from aws_operators.operators.redshift_operators import ExecuteRedshiftQueryOperator, ExecuteCopyToRedshiftOperator
+from aws_operators.operators.lambda_operators import ExecuteLambdaOperator
 
 
 class AWSOperatorsPlugin(AirflowPlugin):
     name = "AWS operators plugin"
-    operators = [ExecuteRedshiftQueryOperator]
+    operators = [
+        ExecuteRedshiftQueryOperator,
+        ExecuteCopyToRedshiftOperator,
+        ExecuteLambdaOperator
+    ]
     hooks = []
     executors = []
     macros = []

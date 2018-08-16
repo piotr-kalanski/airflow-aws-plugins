@@ -4,6 +4,6 @@ Resources:
     Properties:
       DBName: "dev"
       MasterUsername: "root"
-      MasterUserPassword: "r00t"
+      MasterUserPassword: "r00tpoc!"
       NodeType: "dc2.large"
       ClusterType: "single-node"
