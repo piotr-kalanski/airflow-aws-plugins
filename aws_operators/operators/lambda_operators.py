@@ -27,18 +27,18 @@ class ExecuteLambdaOperator(BaseOperator):
         :param kwargs:
         """
         super(ExecuteLambdaOperator, self).__init__(*args, **kwargs)
-        self._airflow_context_to_lambda_payload = airflow_context_to_lambda_payload
-        self._additional_payload = additional_payload
-        self._lambda_function_name = lambda_function_name
-        self._lambda_client = boto3.client('lambda')
+        self.airflow_context_to_lambda_payload = airflow_context_to_lambda_payload
+        self.additional_payload = additional_payload
+        self.lambda_function_name = lambda_function_name
+        self.lambda_client = boto3.client('lambda')
 
     def execute(self, context):
         request_payload = self.__create_lambda_payload(context)
 
-        logging.info('Executing AWS Lambda {} with payload {}'.format(self._lambda_function_name, request_payload))
+        logging.info('Executing AWS Lambda {} with payload {}'.format(self.lambda_function_name, request_payload))
 
-        response = self._lambda_client.invoke(
-            FunctionName=self._lambda_function_name,
+        response = self.lambda_client.invoke(
+            FunctionName=self.lambda_function_name,
             InvocationType='RequestResponse',
             Payload=json.dumps(request_payload),
             LogType='Tail'
@@ -61,6 +61,6 @@ class ExecuteLambdaOperator(BaseOperator):
             raise AirflowException('Lambda invoke failed')
 
     def __create_lambda_payload(self, context):
-        payload = self._airflow_context_to_lambda_payload(context)
-        payload.update(self._additional_payload)
+        payload = self.airflow_context_to_lambda_payload(context)
+        payload.update(self.additional_payload)
         return payload
