@@ -19,22 +19,22 @@ Operator responsible for triggering AWS Lambda function.
 *Example:*
 
 ```python
-    ExecuteLambdaOperator(
-        task_id='task_with_execute_lambda_operator',
-        airflow_context_to_lambda_payload=lambda c: {"date": c["execution_date"].strftime('%Y-%m-%d')   },
-        additional_payload={"param1": "value1", "param2": 21},
-        lambda_function_name="LambdaFunctionName"
-    )
+ExecuteLambdaOperator(
+    task_id='task_with_execute_lambda_operator',
+    airflow_context_to_lambda_payload=lambda c: {"date": c["execution_date"].strftime('%Y-%m-%d')   },
+    additional_payload={"param1": "value1", "param2": 21},
+    lambda_function_name="LambdaFunctionName"
+)
 ```
 
 Above task executes AWS Lambda function `LambdaFunctionName` with payload:
 
 ```json
-    {
-      "date": "2018-08-01",
-      "param1": "value1",
-      "param2": 21
-    }
+{
+  "date": "2018-08-01",
+  "param1": "value1",
+  "param2": 21
+}
 ```
 where `date` is equal to `execution_date` of airflow dag. This is extracted by `airflow_context_to_lambda_payload` function from airflow context dictionary.
 
@@ -49,11 +49,11 @@ Execute Redshift query.
 DROP Redshift table:
 
 ```python
-    ExecuteRedshiftQueryOperator(
-        task_id='drop_table',
-        redshift_conn_id='redshift_dev',
-        query='DROP TABLE IF EXISTS TEST_TABLE'
-    )
+ExecuteRedshiftQueryOperator(
+    task_id='drop_table',
+    redshift_conn_id='redshift_dev',
+    query='DROP TABLE IF EXISTS TEST_TABLE'
+)
 ```
 
 ### ExecuteCopyToRedshiftOperator
