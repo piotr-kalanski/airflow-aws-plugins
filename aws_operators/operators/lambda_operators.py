@@ -20,11 +20,11 @@ class ExecuteLambdaOperator(BaseOperator):
             **kwargs
     ):
         """
+        Trigger AWS Lambda function
+
         :param airflow_context_to_lambda_payload: function extracting fields from Airflow context to Lambda payload
         :param additional_payload: additional parameters for Lambda payload
         :param lambda_function_name: name of Lambda function
-        :param args:
-        :param kwargs:
         """
         super(ExecuteLambdaOperator, self).__init__(*args, **kwargs)
         self.airflow_context_to_lambda_payload = airflow_context_to_lambda_payload

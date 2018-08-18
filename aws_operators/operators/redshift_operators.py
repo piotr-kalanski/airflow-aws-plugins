@@ -9,6 +9,8 @@ class ExecuteRedshiftQueryOperator(BaseOperator):
     @apply_defaults
     def __init__(self, redshift_conn_id, query, *args, **kwargs):
         """
+        Execute Redshift query
+
         :param redshift_conn_id: the destination redshift connection id
         :param query: SQL query to execute
         """
@@ -20,6 +22,25 @@ class ExecuteRedshiftQueryOperator(BaseOperator):
         pg_hook = PostgresHook(self.redshift_conn_id)
         logging.info("Execute Redshift query {}".format(self.query))
         pg_hook.run(self.query)
+
+
+class DropRedshiftTableOperator(ExecuteRedshiftQueryOperator):
+
+    @apply_defaults
+    def __init__(self, redshift_conn_id, full_table_name, *args, **kwargs):
+        """
+        DROP Redshift table
+
+        :param redshift_conn_id: the destination redshift connection id
+        :param full_table_name: full Redshift table name to drop
+        """
+        super(DropRedshiftTableOperator, self).__init__(*args, **kwargs)
+        self.redshift_conn_id = redshift_conn_id
+        self.full_table_name = full_table_name
+
+    def execute(self, context):
+        pg_hook = PostgresHook(self.redshift_conn_id)
+        pg_hook.run("DROP TABLE " + self.full_table_name)
 
 
 class ExecuteCopyToRedshiftOperator(BaseOperator):
@@ -40,11 +61,12 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
             **kwargs
     ):
         """
+        Execute Redshift COPY command
 
         Modes:
-        - append - just insert new rows to table
-        - overwrite - truncate table and insert new rows
-        - append_overwrite - remove selected rows using condition where_condition and then insert new rows
+            * append - just insert new rows to table
+            * overwrite - truncate table and insert new rows
+            * append_overwrite - remove selected rows using condition where_condition and then insert new rows
 
         :param redshift_conn_id: the destination redshift connection id
         :param s3_bucket: name of source S3 bucket
@@ -82,8 +104,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
 
     def __execute_query(self, query):
         print("Executing query: " + query)
-        # TODO - uncomment:
-        #self.pg_hook.run(query)
+        self.pg_hook.run(query)
 
     def __vacuum_table(self):
         query = "VACUUM FULL TABLE {}".format(self.full_table_name)
