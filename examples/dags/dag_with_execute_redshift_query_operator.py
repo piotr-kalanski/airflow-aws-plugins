@@ -1,16 +1,18 @@
 from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
 from aws_operators.operators.redshift_operators import ExecuteRedshiftQueryOperator
 from datetime import datetime
 
 
 with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11)) as dag:
     (
-        BashOperator(
-            task_id='bash_hello',
-            bash_command='echo "HELLO!"'
+        ExecuteRedshiftQueryOperator(
+            task_id='drop_table',
+            redshift_conn_id='redshift_dev',
+            query='DROP TABLE IF EXISTS TEST_TABLE'
         )
         >> ExecuteRedshiftQueryOperator(
-            task_id='task_with_execute_redshift_operator'
+            task_id='create_table',
+            redshift_conn_id='redshift_dev',
+            query='CREATE TABLE TEST_TABLE AS SELECT current_date()'
         )
     )
