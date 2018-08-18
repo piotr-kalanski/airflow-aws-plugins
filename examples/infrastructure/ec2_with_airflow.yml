@@ -46,7 +46,7 @@ Resources:
           #!/bin/bash -xe
           mkdir /home/airflow
           export AIRFLOW_HOME=/home/airflow
-          pip install apache-airflow
+          pip install apache-airflow[all]
           airflow initdb
           airflow webserver -p 8080
 # TODO - role to execute Lambda
