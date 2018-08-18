@@ -99,7 +99,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         copy_query = self.__construct_copy_query()
         self.__execute_query(copy_query)
 
-    def __construct_copy_query(self) -> str:
+    def __construct_copy_query(self):
         additional_params = '\n'.join(self.copy_params)
         return """
         COPY {table}
