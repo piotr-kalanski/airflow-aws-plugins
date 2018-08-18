@@ -3,7 +3,7 @@ from aws_operators.operators.redshift_operators import ExecuteCopyToRedshiftOper
 from datetime import datetime
 
 
-with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11)) as dag:
+with DAG('dag_with_execute_copy_to_redshift_operator', start_date=datetime(2018, 8, 11)) as dag:
     (
         ExecuteCopyToRedshiftOperator(
             task_id='redshift_copy_append',
