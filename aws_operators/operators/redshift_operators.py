@@ -1,10 +1,12 @@
 from airflow.models import BaseOperator
 from airflow.hooks.postgres_hook import PostgresHook
+from airflow.utils import apply_defaults
 import logging
 
 
 class ExecuteRedshiftQueryOperator(BaseOperator):
 
+    @apply_defaults
     def __init__(self, redshift_conn_id, query, *args, **kwargs):
         """
         :param redshift_conn_id: the destination redshift connection id
@@ -22,6 +24,7 @@ class ExecuteRedshiftQueryOperator(BaseOperator):
 
 class ExecuteCopyToRedshiftOperator(BaseOperator):
 
+    @apply_defaults
     def __init__(
             self,
             redshift_conn_id,
