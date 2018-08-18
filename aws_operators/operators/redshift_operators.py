@@ -5,7 +5,7 @@ import logging
 
 class ExecuteRedshiftQueryOperator(BaseOperator):
 
-    def __init__(self, redshift_conn_id: str, query: str, *args, **kwargs):
+    def __init__(self, redshift_conn_id, query, *args, **kwargs):
         """
         :param redshift_conn_id: the destination redshift connection id
         :param query: SQL query to execute
@@ -24,15 +24,15 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
 
     def __init__(
             self,
-            redshift_conn_id: str,
-            s3_bucket: str,
-            s3_key: str,
-            redshift_schema: str,
-            table: str,
-            iam_role: str,
-            mode: str,
+            redshift_conn_id,
+            s3_bucket,
+            s3_key,
+            redshift_schema,
+            table,
+            iam_role,
+            mode,
             where_condition_fn=None,
-            copy_params: list=[],
+            copy_params=[],
             *args,
             **kwargs
     ):

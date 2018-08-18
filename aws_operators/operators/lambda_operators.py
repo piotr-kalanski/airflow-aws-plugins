@@ -14,8 +14,8 @@ class ExecuteLambdaOperator(BaseOperator):
     def __init__(
             self,
             airflow_context_to_lambda_payload,
-            additional_payload: dict,
-            lambda_function_name: str,
+            additional_payload,
+            lambda_function_name,
             *args,
             **kwargs
     ):
