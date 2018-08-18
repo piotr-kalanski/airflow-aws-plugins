@@ -6,7 +6,8 @@ from datetime import datetime
 with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11)) as dag:
     (
         ExecuteCopyToRedshiftOperator(
-            redshift_conn_id='',
+            task_id='redshift_copy_append',
+            redshift_conn_id='redshift_dev',
             s3_bucket='bucket',
             s3_key='key',
             redshift_schema='public',
@@ -15,7 +16,8 @@ with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11))
             mode='append'
         )
         >> ExecuteCopyToRedshiftOperator(
-            redshift_conn_id='',
+            task_id='redshift_copy_overwrite',
+            redshift_conn_id='redshift_dev',
             s3_bucket='bucket',
             s3_key='key',
             redshift_schema='public',
@@ -25,7 +27,8 @@ with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11))
             copy_params=['CSV']
         )
         >> ExecuteCopyToRedshiftOperator(
-            redshift_conn_id='',
+            task_id='redshift_copy_append_overwrite',
+            redshift_conn_id='redshift_dev',
             s3_bucket='bucket',
             s3_key='key',
             redshift_schema='public',
