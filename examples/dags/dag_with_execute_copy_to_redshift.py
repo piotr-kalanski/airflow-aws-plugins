@@ -35,6 +35,6 @@ with DAG('dag_with_execute_copy_to_redshift_operator', start_date=datetime(2018,
             table='table',
             iam_role='iam_role',
             mode='append_overwrite',
-            where_condition_fn=lambda c: 'DATE = ' + c['date']
+            where_condition_fn=lambda c: 'DATE = ' + c['execution_date']
         )
     )
