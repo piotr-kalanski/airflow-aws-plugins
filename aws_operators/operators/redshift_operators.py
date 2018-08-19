@@ -70,7 +70,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
 
         :param redshift_conn_id: the destination redshift connection id
         :param s3_bucket: name of source S3 bucket
-        :param s3_key: path to source data in S3 bucket
+        :param s3_key: path to source data in S3 bucket - can be string or function converting airflow context to path (e.g. to have different path depending on execution date)
         :param redshift_schema: name of destination Redshift schema
         :param table: name of destination Redshift table
         :param iam_role: name of IAM role for Redshift COPY command
@@ -94,12 +94,12 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
     def execute(self, context):
         if self.mode == "OVERWRITE":
             self.__truncate_table()
-            self.__execute_copy()
+            self.__execute_copy(context)
         elif self.mode == "APPEND":
-            self.__execute_copy()
+            self.__execute_copy(context)
         elif self.mode == "APPEND_OVERWRITE":
             self.__delete_from_table(context)
-            self.__execute_copy()
+            self.__execute_copy(context)
             self.__vacuum_table()
 
     def __execute_query(self, query):
@@ -119,12 +119,13 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         query = "DELETE FROM TABLE {} WHERE {}".format(self.full_table_name, condition)
         self.__execute_query(query)
 
-    def __execute_copy(self):
-        copy_query = self.__construct_copy_query()
+    def __execute_copy(self, context):
+        copy_query = self.__construct_copy_query(context)
         self.__execute_query(copy_query)
 
-    def __construct_copy_query(self):
+    def __construct_copy_query(self, context):
         additional_params = '\n'.join(self.copy_params)
+        s3_key = self.s3_key if type(self.s3_key) == str else self.s3_key(context)
         return """
         COPY {table}
         FROM 's3://{bucket}/{key}'
@@ -133,7 +134,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         """.format(
             table=self.full_table_name,
             bucket=self.s3_bucket,
-            key=self.s3_key,
+            key=s3_key,
             iam_role=self.iam_role,
             additional_params=additional_params
         )

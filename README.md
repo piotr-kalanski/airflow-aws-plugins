@@ -1,6 +1,16 @@
-# Introduction
+# airflow-aws-plugin
 
 Airflow plugin with AWS operators
+
+# Table of contents
+
+- [Installation](#installation)
+- [Operators](#operators)
+    - [AWS Lambda](#aws-lambda)
+        - [ExecuteLambdaOperator](#executelambdaoperator)
+    - [AWS Redshift](#aws-redshift)    
+        - [ExecuteRedshiftQueryOperator](#executeredshiftqueryoperator)
+        - [ExecuteCopyToRedshiftOperator](#executecopytoredshiftoperator)            
 
 # Installation
 
@@ -88,5 +98,17 @@ ExecuteCopyToRedshiftOperator(
     iam_role='iam_role',
     mode='overwrite',
     copy_params=['CSV']
+)
+```
+
+#### S3 key dependent on airflow context
+
+Source S3 key can be constructed using custom Python function based on airflow context.
+
+Example:
+
+```python
+ExecuteCopyToRedshiftOperator(
+    s3_key=lambda context: "year={y}/month={m}/day={d}/".format(y=context["execution_date"].year, m=context["execution_date"].strftime("%m"), d=context["execution_date"].strftime("%d"))
 )
 ```
