@@ -52,7 +52,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
             s3_bucket,
             s3_key,
             redshift_schema,
-            table,
+            redshift_table,
             iam_role,
             mode,
             where_condition_fn=None,
@@ -72,7 +72,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         :param s3_bucket: name of source S3 bucket
         :param s3_key: path to source data in S3 bucket - can be string or function converting airflow context to path (e.g. to have different path depending on execution date)
         :param redshift_schema: name of destination Redshift schema
-        :param table: name of destination Redshift table
+        :param redshift_table: name of destination Redshift table
         :param iam_role: name of IAM role for Redshift COPY command
         :param mode: append, overwrite, append_overwrite
         :param where_condition_fn: obligatory parameter for append_overwrite mode, function returning condition for WHERE statement in delete
@@ -84,8 +84,8 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
         self.redshift_schema = redshift_schema
-        self.table = table
-        self.full_table_name = self.redshift_schema + "." + self.table
+        self.redshift_table = redshift_table
+        self.full_table_name = self.redshift_schema + "." + self.redshift_table
         self.iam_role = iam_role
         self.mode = mode.upper()
         self.where_condition_fn = where_condition_fn
@@ -107,8 +107,12 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         self.pg_hook.run(query)
 
     def __vacuum_table(self):
-        query = "VACUUM FULL TABLE {}".format(self.full_table_name)
-        self.__execute_query(query)
+        query = "VACUUM FULL {}".format(self.full_table_name)
+        # Using connection, because VACUUM can't be executed in transaction and pg_hook is executing within transaction
+        conn = self.pg_hook.get_conn()
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            cur.execute(query)
 
     def __truncate_table(self):
         query = "TRUNCATE TABLE {}".format(self.full_table_name)
@@ -116,7 +120,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
 
     def __delete_from_table(self, context):
         condition = self.where_condition_fn(context)
-        query = "DELETE FROM TABLE {} WHERE {}".format(self.full_table_name, condition)
+        query = "DELETE FROM {} WHERE {}".format(self.full_table_name, condition)
         self.__execute_query(query)
 
     def __execute_copy(self, context):
@@ -129,7 +133,7 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
         return """
         COPY {table}
         FROM 's3://{bucket}/{key}'
-        CREDENTIALS 'iam_role={iam_role}'
+        CREDENTIALS 'aws_iam_role={iam_role}'
         {additional_params}
         """.format(
             table=self.full_table_name,

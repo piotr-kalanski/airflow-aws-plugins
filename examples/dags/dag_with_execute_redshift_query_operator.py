@@ -13,6 +13,6 @@ with DAG('dag_with_execute_redshift_operator', start_date=datetime(2018, 8, 11))
         >> ExecuteRedshiftQueryOperator(
             task_id='create_table',
             redshift_conn_id='redshift_dev',
-            query='CREATE TABLE TEST_TABLE AS SELECT current_date()'
+            query='CREATE TABLE TEST_TABLE AS SELECT current_date'
         )
     )
