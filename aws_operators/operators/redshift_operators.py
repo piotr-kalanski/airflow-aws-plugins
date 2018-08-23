@@ -62,6 +62,25 @@ class TruncateRedshiftTableOperator(BaseOperator):
         pg_hook.run("TRUNCATE TABLE " + self.full_table_name)
 
 
+class VacuumRedshiftTableOperator(BaseOperator):
+
+    @apply_defaults
+    def __init__(self, redshift_conn_id, full_table_name, *args, **kwargs):
+        """
+        VACUUM Redshift table
+
+        :param redshift_conn_id: the destination redshift connection id
+        :param full_table_name: full Redshift table name to vacuum
+        """
+        super(VacuumRedshiftTableOperator, self).__init__(*args, **kwargs)
+        self.redshift_conn_id = redshift_conn_id
+        self.full_table_name = full_table_name
+
+    def execute(self, context):
+        pg_hook = PostgresHook(self.redshift_conn_id)
+        pg_hook.run("VACUUM FULL " + self.full_table_name)
+
+
 class ExecuteCopyToRedshiftOperator(BaseOperator):
 
     @apply_defaults
