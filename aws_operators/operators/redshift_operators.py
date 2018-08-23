@@ -12,7 +12,7 @@ class ExecuteRedshiftQueryOperator(BaseOperator):
         Execute Redshift query
 
         :param redshift_conn_id: the destination redshift connection id
-        :param query: SQL query to execute
+        :param query: SQL query to execute - can be string or function converting airflow context to query
         """
         super(ExecuteRedshiftQueryOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
@@ -20,8 +20,9 @@ class ExecuteRedshiftQueryOperator(BaseOperator):
 
     def execute(self, context):
         pg_hook = PostgresHook(self.redshift_conn_id)
-        logging.info("Execute Redshift query {}".format(self.query))
-        pg_hook.run(self.query)
+        query = self.query if type(self.query) == str else self.query(context)
+        logging.info("Execute Redshift query {}".format(query))
+        pg_hook.run(query)
 
 
 class DropRedshiftTableOperator(BaseOperator):
