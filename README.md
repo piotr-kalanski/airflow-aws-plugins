@@ -66,6 +66,19 @@ ExecuteRedshiftQueryOperator(
 )
 ```
 
+#### Query depending on execution date
+
+Query can be constructed based on Airflow context, especially execution date.
+
+Example:
+```python
+ExecuteRedshiftQueryOperator(
+    task_id='delete_from_table',
+    redshift_conn_id='redshift_dev',
+    query=lambda c: "DELETE FROM TABLE TEST_TABLE WHERE MONTH = '{y}-{m}'".format(y=c["execution_date"].year, m=c["execution_date"].strftime("%m"))
+)
+```
+
 ### ExecuteCopyToRedshiftOperator
 
 Execute Redshift COPY command.
