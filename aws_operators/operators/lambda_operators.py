@@ -13,9 +13,9 @@ class ExecuteLambdaOperator(BaseOperator):
     @apply_defaults
     def __init__(
             self,
-            airflow_context_to_lambda_payload,
-            additional_payload,
             lambda_function_name,
+            airflow_context_to_lambda_payload=None,
+            additional_payload={},
             *args,
             **kwargs
     ):
@@ -61,6 +61,6 @@ class ExecuteLambdaOperator(BaseOperator):
             raise AirflowException('Lambda invoke failed')
 
     def __create_lambda_payload(self, context):
-        payload = self.airflow_context_to_lambda_payload(context)
+        payload = self.airflow_context_to_lambda_payload(context) if self.airflow_context_to_lambda_payload is not None else {}
         payload.update(self.additional_payload)
         return payload
