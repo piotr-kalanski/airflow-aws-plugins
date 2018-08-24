@@ -41,7 +41,7 @@ class DropRedshiftTableOperator(BaseOperator):
 
     def execute(self, context):
         pg_hook = PostgresHook(self.redshift_conn_id)
-        pg_hook.run("DROP TABLE " + self.full_table_name)
+        pg_hook.run("DROP TABLE IF EXISTS " + self.full_table_name)
 
 
 class TruncateRedshiftTableOperator(BaseOperator):
