@@ -79,7 +79,12 @@ class VacuumRedshiftTableOperator(BaseOperator):
 
     def execute(self, context):
         pg_hook = PostgresHook(self.redshift_conn_id)
-        pg_hook.run("VACUUM FULL " + self.full_table_name)
+        query = "VACUUM FULL {}".format(self.full_table_name)
+        # Using connection, because VACUUM can't be executed in transaction and pg_hook is executing within transaction
+        conn = pg_hook.get_conn()
+        conn.autocommit = True
+        with conn.cursor() as cur:
+            cur.execute(query)
 
 
 class ExecuteCopyToRedshiftOperator(BaseOperator):
