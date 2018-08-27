@@ -114,6 +114,22 @@ ExecuteCopyToRedshiftOperator(
 )
 ```
 
+### ExecuteUnloadFromRedshiftOperator
+
+Execute Redshift UNLOAD command.
+
+```python
+ExecuteUnloadFromRedshiftOperator(
+    task_id='redshift_unload',
+    redshift_conn_id='redshift_dev',
+    select_statement='SELECT * FROM TABLE',
+    s3_bucket='bucket',
+    s3_key='key',
+    iam_role='iam_role',
+    unload_params=["DELIMITER AS ';'", "GZIP"]
+)
+```
+
 #### S3 key dependent on airflow context
 
 Source S3 key can be constructed using custom Python function based on airflow context.

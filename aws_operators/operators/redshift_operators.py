@@ -186,3 +186,54 @@ class ExecuteCopyToRedshiftOperator(BaseOperator):
             iam_role=self.iam_role,
             additional_params=additional_params
         )
+
+
+class ExecuteUnloadFromRedshiftOperator(BaseOperator):
+
+    @apply_defaults
+    def __init__(
+            self,
+            redshift_conn_id,
+            select_statement,
+            s3_bucket,
+            s3_key,
+            iam_role,
+            unload_params=[],
+            *args,
+            **kwargs
+    ):
+        """
+        Execute Redshift UNLOAD command
+
+        :param redshift_conn_id: the destination redshift connection id
+        :param select_statement: select statement to unload data
+        :param s3_bucket: name of destination S3 bucket
+        :param s3_key: path to statement data in S3 bucket - can be string or function converting airflow context to path (e.g. to have different path depending on execution date)
+        :param iam_role: name of IAM role for Redshift UNLOAD command
+        :param unload_params: additional UNLOAD command parameters
+        """
+
+        super(ExecuteUnloadFromRedshiftOperator, self).__init__(*args, **kwargs)
+        self.pg_hook = PostgresHook(redshift_conn_id)
+        self.select_statement = select_statement
+        self.s3_bucket = s3_bucket
+        self.s3_key = s3_key
+        self.iam_role = iam_role
+        self.unload_params = unload_params
+
+    def execute(self, context):
+        additional_params = '\n'.join(self.unload_params)
+        s3_key = self.s3_key if type(self.s3_key) == str else self.s3_key(context)
+        query = """
+        UNLOAD ('{select_statement}')
+        TO 's3://{bucket}/{key}'
+        iam_role '{iam_role}'
+        {additional_params}
+        """.format(
+            select_statement=self.select_statement,
+            bucket=self.s3_bucket,
+            key=s3_key,
+            iam_role=self.iam_role,
+            additional_params=additional_params
+        )
+        self.pg_hook.run(query)
