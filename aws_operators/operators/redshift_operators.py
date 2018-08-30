@@ -237,3 +237,28 @@ class ExecuteUnloadFromRedshiftOperator(BaseOperator):
             additional_params=additional_params
         )
         self.pg_hook.run(query)
+
+
+class ExecuteAnalyzeRedshiftTableOperator(BaseOperator):
+
+    @apply_defaults
+    def __init__(
+            self,
+            redshift_conn_id,
+            full_table_name,
+            *args,
+            **kwargs
+    ):
+        """
+        Execute Redshift analyze table command
+
+        :param redshift_conn_id: the destination redshift connection id
+        :param full_table_name: full Redshift table name to analyze
+        """
+        super(ExecuteAnalyzeRedshiftTableOperator, self).__init__(*args, **kwargs)
+        self.redshift_conn_id = redshift_conn_id
+        self.full_table_name = full_table_name
+
+    def execute(self, context):
+        pg_hook = PostgresHook(self.redshift_conn_id)
+        pg_hook.run("ANALYZE " + self.full_table_name)
