@@ -1,6 +1,7 @@
 from airflow.models import BaseOperator
 from airflow.utils import apply_defaults
 from airflow.exceptions import AirflowException
+from botocore.config import Config
 
 import boto3
 import json
@@ -30,7 +31,7 @@ class ExecuteLambdaOperator(BaseOperator):
         self.airflow_context_to_lambda_payload = airflow_context_to_lambda_payload
         self.additional_payload = additional_payload
         self.lambda_function_name = lambda_function_name
-        self.lambda_client = boto3.client('lambda')
+        self.lambda_client = boto3.client('lambda', config=Config(read_timeout=300, connect_timeout=300))
 
     def execute(self, context):
         request_payload = self.__create_lambda_payload(context)
